@@ -22,9 +22,9 @@ mainLoop mode buffer@(EditBuffer location contents) =
        then 
          case ch of 
            '\ESC' -> mainLoop Command (enterCommandMode buffer)
-           _      -> if not (isControl ch) 
-                       then mainLoop mode (insertChar ch buffer)
-                       else mainLoop mode buffer
+           _      -> if (isControl ch) && not (ch == '\n')  
+                       then mainLoop mode buffer
+                       else mainLoop mode (insertChar ch buffer)
        else
          case ch of
            ':' -> handleCommandLine buffer
