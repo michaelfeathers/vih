@@ -17,7 +17,7 @@ module EditBuffer
 where
 
 type Location = (Int, Int)
-data EditBuffer = EditBuffer Location String deriving Show
+data EditBuffer = EditBuffer Location String deriving (Eq,Show)
 
 emptyBuffer = EditBuffer (0,0) ""
 
