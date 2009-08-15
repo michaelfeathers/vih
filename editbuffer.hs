@@ -12,9 +12,12 @@ module EditBuffer
      , moveLeft, moveRight, moveUp, moveDown
      , moveToHome, moveToEnd
      , moveToLineStart, moveToLineEnd
+     , wordForward
      , showRepresentation
      ) 
 where
+
+import Char
 
 type Location = (Int, Int)
 data EditBuffer = EditBuffer Location String deriving (Eq,Show)
@@ -47,12 +50,12 @@ deleteChar buffer@(EditBuffer location@(x,y) contents)
 insertLineAfter :: EditBuffer -> EditBuffer
 insertLineAfter (EditBuffer _ "") = EditBuffer (0,1) "\n"
 insertLineAfter (EditBuffer (_,y) contents) = EditBuffer (0,y+1) newContents
-  where newContents           = unlines [transform numberedLine | numberedLine <- zip (lines contents) [0..]]
+  where newContents           = unlines [transform numberedLine | numberedLine <- numberedLines contents] 
         transform (line, pos) = if pos == y then line ++ "\n" else line  
 
 deleteLine :: EditBuffer ->EditBuffer
 deleteLine (EditBuffer location@(_,y) contents) = forceLocation (EditBuffer location newContents)
-  where newContents = unlines [ line | (line, pos) <- zip (lines contents) [0..], pos /= y] 
+  where newContents = unlines [ line | (line, pos) <- numberedLines contents, pos /= y] 
 
 moveLeft, moveRight, moveUp, moveDown :: EditBuffer -> EditBuffer
 moveLeft  = saturate (-1, 0)  
@@ -73,6 +76,12 @@ moveToLineStart (EditBuffer (_,y) contents) = EditBuffer (0,y) contents
 moveToLineEnd :: EditBuffer -> EditBuffer
 moveToLineEnd buffer@(EditBuffer (_,y) contents) = 
   satX 0 $ (EditBuffer ((currentLineLength buffer), y) contents) 
+
+wordForward :: EditBuffer -> EditBuffer
+wordForward buffer@(EditBuffer _ contents) = 
+  case dropWhile (\(x,_) -> isSpace x) . dropWhile (\(x,_) -> isAlphaNum x) . dropWhile (\(_,pos) -> pos < absPosition buffer) . numberedElements $ contents of
+    []            -> buffer
+    ((_,pos) : _) -> EditBuffer (locationFromPosition pos buffer) contents
 
 showRepresentation :: EditBuffer -> String
 showRepresentation (EditBuffer location contents) =
@@ -98,6 +107,13 @@ absPosition :: EditBuffer -> Int
 absPosition (EditBuffer (x, y) contents) = 
   (x+) . length . unlines . take y . lines $ contents
 
+locationFromPosition :: Int -> EditBuffer -> Location
+locationFromPosition pos (EditBuffer _ contents) =
+  let wayPoints = takeWhile (<= pos) . scanl1 (+) . map ((+1).length) . lines $ contents
+  in case wayPoints of
+       []   -> (pos, 0)
+       xs   -> (pos - (last xs), length wayPoints)
+
 saturate :: (Int,Int) -> EditBuffer -> EditBuffer
 saturate (adjX,adjY)  = satX adjX . satY adjY
 
@@ -116,4 +132,9 @@ saturateValue bound value
   | value >= bound  = bound - 1 
   | otherwise       = value
 
+numberedElements :: [a] -> [(a,Int)]
+numberedElements = (flip zip) [0..]
+
+numberedLines :: String -> [(String,Int)]
+numberedLines = numberedElements . lines
 

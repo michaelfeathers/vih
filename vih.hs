@@ -45,6 +45,7 @@ mainLoop mode buffer@(EditBuffer location contents) =
            '0' -> mainLoop mode (moveToLineStart buffer)
            '$' -> mainLoop mode (moveToLineEnd buffer)
            'o' -> mainLoop Insert (insertLineAfter buffer)
+           'w' -> mainLoop mode (wordForward buffer)
            'x' -> mainLoop mode (deleteChar buffer)
            _   -> mainLoop mode buffer
 
