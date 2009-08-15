@@ -22,9 +22,9 @@ mainLoop mode buffer@(EditBuffer location contents) =
        then 
          case ch of 
            '\ESC' -> mainLoop Command (enterCommandMode buffer)
-           _      -> if (isControl ch) && not (ch == '\n')  
-                       then mainLoop mode buffer
-                       else mainLoop mode (insertChar ch buffer)
+           _      -> if isInputChar ch 
+                       then mainLoop mode (insertChar ch buffer)
+                       else mainLoop mode buffer
        else
          case ch of
            ':' -> handleCommandLine buffer
@@ -45,6 +45,10 @@ mainLoop mode buffer@(EditBuffer location contents) =
            '0' -> mainLoop mode (moveToLineStart buffer)
            '$' -> mainLoop mode (moveToLineEnd buffer)
            'o' -> mainLoop Insert (insertLineAfter buffer)
+           'r' -> do nextCh <- getInputChar 
+                     if isInputChar nextCh
+                       then mainLoop mode (replaceChar nextCh buffer)
+                       else mainLoop mode buffer
            'w' -> mainLoop mode (wordForward buffer)
            'x' -> mainLoop mode (deleteChar buffer)
            _   -> mainLoop mode buffer
@@ -58,3 +62,8 @@ handleCommandLine buffer =
      if head command == 'q'
        then return ()
        else mainLoop Command buffer
+
+
+isInputChar :: Char -> Bool
+isInputChar ch = (not (isControl ch)) || (ch == '\n')
+

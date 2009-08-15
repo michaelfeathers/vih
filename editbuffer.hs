@@ -6,7 +6,7 @@ module EditBuffer
      , enterCommandMode
      , getBufferContents
      , lineCount
-     , insertChar, deleteChar
+     , insertChar, deleteChar, replaceChar
      , insertLineAfter
      , deleteLine
      , moveLeft, moveRight, moveUp, moveDown
@@ -46,6 +46,13 @@ deleteChar buffer@(EditBuffer location@(x,y) contents)
     | otherwise                       = satX 0 (EditBuffer location newContents)
   where newContents     = before ++ (tail after)
         (before, after) = split buffer
+
+replaceChar :: Char -> EditBuffer -> EditBuffer
+replaceChar replacementChar buffer@(EditBuffer location contents) =
+  let newContents         = [transform x | x <- numberedElements contents]
+      transform (ch, pos) = if pos == (absPosition buffer) then replacementChar else ch 
+  in EditBuffer location newContents
+ 
 
 insertLineAfter :: EditBuffer -> EditBuffer
 insertLineAfter (EditBuffer _ "") = EditBuffer (0,1) "\n"
