@@ -10,7 +10,7 @@ module EditBuffer
      , insertLineAfter
      , deleteLine
      , moveLeft, moveRight, moveUp, moveDown
-     , moveToHome, moveToEnd
+     , moveToHome, moveToEnd, moveToLine
      , moveToLineStart, moveToLineEnd
      , wordForward
      , frame
@@ -58,8 +58,8 @@ replaceChar replacementChar buffer@(EditBuffer topLine location contents) =
 insertLineAfter :: EditBuffer -> EditBuffer
 insertLineAfter (EditBuffer topLine _ "") = EditBuffer topLine (0,1) "\n"
 insertLineAfter (EditBuffer topLine (_,y) contents) = EditBuffer topLine (0,y+1) newContents
-  where newContents           = unlines [transform numberedLine | numberedLine <- numberedLines contents] 
-        transform (line, pos) = if pos == y then line ++ "\n" else line  
+  where newContents   = unlines . map f .  numberedLines $ contents
+        f (line, pos) = if pos == y then line ++ "\n" else line  
 
 deleteLine :: EditBuffer ->EditBuffer
 deleteLine (EditBuffer topLine location@(_,y) contents) = forceLocation (EditBuffer topLine location newContents)
@@ -77,6 +77,10 @@ moveToHome (EditBuffer topLine _ contents) = EditBuffer topLine (0,0) contents
 moveToEnd :: EditBuffer -> EditBuffer
 moveToEnd = saturate (lastPos, lastPos)
   where lastPos = (maxBound :: Int) - 1
+
+moveToLine :: Int -> EditBuffer -> EditBuffer
+moveToLine lineNumber (EditBuffer topLine (x,y) contents) =
+  forceLocation (EditBuffer topLine (x, lineNumber) contents)
 
 moveToLineStart :: EditBuffer -> EditBuffer
 moveToLineStart (EditBuffer topLine (_,y) contents) = EditBuffer topLine (0,y) contents

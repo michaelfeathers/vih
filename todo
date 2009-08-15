@@ -1,3 +1,4 @@
+- Add exception handling for goto line so that parse errors don't crash
 - Pull frame out of the main loop and attach to all functions which adjust vertical
 - Form Arbitraries for QS checks
 - Put test driver in place
@@ -6,6 +7,9 @@
 - Simplify locationFromPosition.  May not need cumulative sum
 - Add punct groups as words in wordForward
 - Add wordBackward
-- Write f, O, a, goto line, etc.
+x Write goto line
+- Add cw, dw
+- Write f, O, a, etc.
+- forward and backward search
 - File operations: e, w, wq, q!
 - Need status line

@@ -3,6 +3,7 @@ import EditBuffer
 import Rendering
 import Input
 import Char
+import Control.Exception
 
 data EditMode = Command | Insert deriving (Eq,Show)
 
@@ -54,6 +55,7 @@ mainLoop mode previousBuffer =
            _   -> mainLoop mode buffer
 
 
+-- aborts when line command is not parseable.  Fix with exception catch
 handleCommandLine :: EditBuffer -> IO ()
 handleCommandLine buffer =
   do goto commandHome
@@ -61,7 +63,9 @@ handleCommandLine buffer =
      command <- getLine
      if head command == 'q'
        then return ()
-       else mainLoop Command buffer
+       else if isDigit (head command)
+         then mainLoop Command (moveToLine (read command :: Int) buffer)
+         else mainLoop Command buffer
 
 
 isInputChar :: Char -> Bool
