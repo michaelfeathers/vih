@@ -12,11 +12,11 @@ vih =
      mainLoop Command emptyBuffer 
 
 mainLoop :: EditMode -> EditBuffer -> IO ()
-mainLoop mode buffer@(EditBuffer location contents) = 
+mainLoop mode previousBuffer = 
   do cls
-     render $ getBufferContents buffer
+     buffer <- return (frame previousBuffer) 
+     render buffer
      -- writeAt commandHome (showRepresentation buffer)
-     goto location
      ch <- getInputChar
      if mode == Insert
        then 

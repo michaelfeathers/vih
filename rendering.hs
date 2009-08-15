@@ -25,11 +25,12 @@ commandHome = (0, yExtent + 1)
 cls :: IO ()
 cls = putStr "\ESC[2J"
 
-render :: String -> IO ()
-render s = do 
-  writeAt home $ frame screenLines 
-    where frame       = unlines . take yExtent  
-          screenLines = (lines s) ++ (repeat "~")
+render :: EditBuffer -> IO ()
+render (EditBuffer topLine (x,y) contents) = do 
+  writeAt home $ window screenLines 
+  goto (x, y - topLine)
+    where window       = unlines . take yExtent . drop topLine  
+          screenLines  = (lines contents) ++ (repeat "~")
 
 goto :: Location -> IO ()
 goto (x,y) =
