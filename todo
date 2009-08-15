@@ -1,0 +1,11 @@
+- Pull frame out of the main loop and attach to all functions which adjust vertical
+- Form Arbitraries for QS checks
+- Put test driver in place
+- Documentation
+- Investigate state State T IO monad for mainLoop
+- Simplify locationFromPosition.  May not need cumulative sum
+- Add punct groups as words in wordForward
+- Add wordBackward
+- Write f, O, a, goto line, etc.
+- File operations: e, w, wq, q!
+- Need status line
