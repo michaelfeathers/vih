@@ -12,7 +12,7 @@ module EditBuffer
      , moveLeft, moveRight, moveUp, moveDown
      , moveToHome, moveToEnd, moveToLine
      , moveToLineStart, moveToLineEnd
-     , wordForward
+     , wordForward, wordBackward
      , frame
      , showRepresentation
      ) 
@@ -95,6 +95,12 @@ wordForward buffer@(EditBuffer topLine _ contents) =
     []            -> buffer
     ((_,pos) : _) -> EditBuffer topLine (locationFromPosition pos contents) contents
 
+wordBackward :: EditBuffer -> EditBuffer
+wordBackward buffer@(EditBuffer topLine _ contents) = 
+  case dropWord . dropSpaces . reverse . take (absPosition buffer) . numberedElements $ contents of
+    []            -> buffer
+    ((_,pos) : _) -> EditBuffer topLine (locationFromPosition (pos+1) contents) contents
+
 frame :: EditBuffer -> EditBuffer
 frame buffer@(EditBuffer topLine (x,y) contents) 
   | y > topLine + 40 = EditBuffer (y - 40) (x,y) contents
@@ -133,7 +139,7 @@ locationFromPosition pos contents =
   in (x, y)
 
 isPunct :: Char -> Bool
-isPunct ch = isAscii ch && not (isAlphaNum ch) && not (isControl ch)  
+isPunct ch = isAscii ch && not (isAlphaNum ch) && not (isSpace ch) && not (isControl ch)  
 
 dropWord :: [(Char,a)] -> [(Char,a)]
 dropWord [] = []

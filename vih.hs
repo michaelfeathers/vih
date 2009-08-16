@@ -51,6 +51,7 @@ mainLoop mode previousBuffer =
                        then mainLoop mode (replaceChar nextCh buffer)
                        else mainLoop mode buffer
            'w' -> mainLoop mode (wordForward buffer)
+           'b' -> mainLoop mode (wordBackward buffer)
            'x' -> mainLoop mode (deleteChar buffer)
            _   -> mainLoop mode buffer
 
