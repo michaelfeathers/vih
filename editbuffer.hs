@@ -93,7 +93,7 @@ wordForward :: EditBuffer -> EditBuffer
 wordForward buffer@(EditBuffer topLine _ contents) = 
   case dropWhile (\(x,_) -> isSpace x) . dropWhile (\(x,_) -> isAlphaNum x) . dropWhile (\(_,pos) -> pos < absPosition buffer) . numberedElements $ contents of
     []            -> buffer
-    ((_,pos) : _) -> EditBuffer topLine (locationFromPosition pos buffer) contents
+    ((_,pos) : _) -> EditBuffer topLine (locationFromPosition pos contents) contents
 
 frame :: EditBuffer -> EditBuffer
 frame buffer@(EditBuffer topLine (x,y) contents) 
@@ -125,12 +125,12 @@ absPosition :: EditBuffer -> Int
 absPosition (EditBuffer _ (x, y) contents) = 
   (x+) . length . unlines . take y . lines $ contents
 
-locationFromPosition :: Int -> EditBuffer -> Location
-locationFromPosition pos (EditBuffer _ _ contents) =
-  let wayPoints = takeWhile (<= pos) . scanl1 (+) . map ((+1).length) . lines $ contents
-  in case wayPoints of
-       []   -> (pos, 0)
-       xs   -> (pos - (last xs), length wayPoints)
+locationFromPosition :: Int -> String -> Location
+locationFromPosition pos contents =
+  let foreText = init . lines . take (pos + 1) $ contents
+      x        = pos - (length $ unlines foreText) 
+      y        = length foreText
+  in (x, y)
 
 saturate :: (Int,Int) -> EditBuffer -> EditBuffer
 saturate (adjX,adjY)  = satX adjX . satY adjY
