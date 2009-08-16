@@ -91,7 +91,7 @@ moveToLineEnd buffer@(EditBuffer topLine (_,y) contents) =
 
 wordForward :: EditBuffer -> EditBuffer
 wordForward buffer@(EditBuffer topLine _ contents) = 
-  case dropWhile (\(x,_) -> isSpace x) . dropWhile (\(x,_) -> isAlphaNum x) . dropWhile (\(_,pos) -> pos < absPosition buffer) . numberedElements $ contents of
+  case dropSpaces . dropWord . drop (absPosition buffer) . numberedElements $ contents of
     []            -> buffer
     ((_,pos) : _) -> EditBuffer topLine (locationFromPosition pos contents) contents
 
@@ -131,6 +131,24 @@ locationFromPosition pos contents =
       x        = pos - (length $ unlines foreText) 
       y        = length foreText
   in (x, y)
+
+isPunct :: Char -> Bool
+isPunct ch = isAscii ch && not (isAlphaNum ch) && not (isControl ch)  
+
+dropWord :: [(Char,a)] -> [(Char,a)]
+dropWord [] = []
+dropWord all@((ch,_):xs) 
+  | isPunct ch    = dropPuncts all
+  | isAlphaNum ch = dropAlphaNums all 
+  | otherwise     = all
+
+dropPuncts, dropSpaces, dropAlphaNums :: [(Char,a)] -> [(Char,a)]
+dropPuncts = dropInNumbered isPunct 
+dropSpaces = dropInNumbered isSpace
+dropAlphaNums = dropInNumbered isAlphaNum
+
+dropInNumbered :: (Char -> Bool) -> [(Char,a)] -> [(Char,a)]
+dropInNumbered f = dropWhile (\(ch,_) -> f ch)
 
 saturate :: (Int,Int) -> EditBuffer -> EditBuffer
 saturate (adjX,adjY)  = satX adjX . satY adjY

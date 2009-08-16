@@ -5,7 +5,7 @@
 - Documentation
 - Investigate state State T IO monad for mainLoop
 x Simplify locationFromPosition.  May not need cumulative sum
-- Add punct groups as words in wordForward
+x Add punct groups as words in wordForward
 - Add wordBackward
 x Write goto line
 - Add cw, dw
