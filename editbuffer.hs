@@ -50,8 +50,8 @@ deleteChar buffer@(EditBuffer topLine location@(x,y) contents)
 
 replaceChar :: Char -> EditBuffer -> EditBuffer
 replaceChar replacementChar buffer@(EditBuffer topLine location contents) =
-  let newContents         = [transform x | x <- numberedElements contents]
-      transform (ch, pos) = if pos == (absPosition buffer) then replacementChar else ch 
+  let newContents  = map f . numberedElements $ contents 
+      f (ch, pos)  = if pos == (absPosition buffer) then replacementChar else ch 
   in EditBuffer topLine location newContents
  
 
@@ -133,9 +133,9 @@ absPosition (EditBuffer _ (x, y) contents) =
 
 locationFromPosition :: Int -> String -> Location
 locationFromPosition pos contents =
-  let foreText = init . lines . take (pos + 1) $ contents
-      x        = pos - (length $ unlines foreText) 
-      y        = length foreText
+  let foreLines = init . lines . take (pos + 1) $ contents
+      x         = pos - (length $ unlines foreLines) 
+      y         = length foreLines
   in (x, y)
 
 isPunct :: Char -> Bool
@@ -143,7 +143,7 @@ isPunct ch = isAscii ch && not (isAlphaNum ch) && not (isSpace ch) && not (isCon
 
 dropWord :: [(Char,a)] -> [(Char,a)]
 dropWord [] = []
-dropWord all@((ch,_):xs) 
+dropWord all@((ch,_):_) 
   | isPunct ch    = dropPuncts all
   | isAlphaNum ch = dropAlphaNums all 
   | otherwise     = all

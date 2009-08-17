@@ -4,6 +4,7 @@
 - Put test driver in place
 - Documentation
 - Investigate state State T IO monad for mainLoop
+- bug in wordBackward.  Never gets to first word in buffer if flush
 x Simplify locationFromPosition.  May not need cumulative sum
 x Add punct groups as words in wordForward
 x Add wordBackward
