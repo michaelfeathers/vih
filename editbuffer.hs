@@ -54,7 +54,6 @@ replaceChar replacementChar buffer@(EditBuffer topLine location contents) =
       f (ch, pos)  = if pos == (absPosition buffer) then replacementChar else ch 
   in EditBuffer topLine location newContents
  
-
 insertLineAfter :: EditBuffer -> EditBuffer
 insertLineAfter (EditBuffer topLine _ "") = EditBuffer topLine (0,1) "\n"
 insertLineAfter (EditBuffer topLine (_,y) contents) = EditBuffer topLine (0,y+1) newContents
@@ -98,7 +97,7 @@ wordForward buffer@(EditBuffer topLine _ contents) =
 wordBackward :: EditBuffer -> EditBuffer
 wordBackward buffer@(EditBuffer topLine _ contents) = 
   case dropWord . dropSpaces . reverse . take (absPosition buffer) . numberedElements $ contents of
-    []            -> buffer
+    []            -> EditBuffer topLine (locationFromPosition 0 contents) contents
     ((_,pos) : _) -> EditBuffer topLine (locationFromPosition (pos+1) contents) contents
 
 frame :: EditBuffer -> EditBuffer
